@@ -1,7 +1,7 @@
 // config.js
 
 // API Endpoints
-export const API_BASE_URL = "http://ec2-13-201-89-61.ap-south-1.compute.amazonaws.com/api";
+export const API_BASE_URL = "https://api.ilc.limited/api";
 
 // Cloudinary Configuration
 export const CLOUDINARY_CLOUD_NAME = "dhsivjlew"; // Your Cloudinary cloud name
