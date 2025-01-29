@@ -27,6 +27,10 @@ import {
 } from "@/data";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 
+const adminAccess = localStorage.getItem("adminAccess");
+console.log("Admin Access Level:", adminAccess);
+
+
 export function Home() {
   return (
     <div className="mt-12">

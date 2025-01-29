@@ -75,7 +75,7 @@ export function Configurator() {
             Theme Config
           </Typography>
           <Typography className="font-normal text-blue-gray-600">
-            See our dashboard options.
+            See dashboard options.
           </Typography>
         </div>
         <IconButton

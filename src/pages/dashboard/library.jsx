@@ -11,6 +11,7 @@ import {
   MenuItem,
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon } from "@heroicons/react/24/outline";
+import { DocumentTextIcon } from "@heroicons/react/24/solid";
 import { useState, useEffect } from "react";
 import LibraryModal from "@/components/LibraryModal";
 
@@ -186,10 +187,14 @@ export function Library() {
                       </Typography>
                     </td>
                     <td className={className}>
-                      <a href={asset.fileUrl} target="_blank" rel="noopener noreferrer">
-                        {asset.fileUrl ? "View File" : "No File"}
-                      </a>
-                    </td>
+                      {asset.fileUrl ? (
+                        <a href={asset.fileUrl} target="_blank" rel="noopener noreferrer">
+                            <DocumentTextIcon className="h-6 w-6 text-[#800000]" /> {/* Maroon color */}
+                        </a>
+                        ) : (
+                        "No File"
+                       )}
+                     </td>
                     <td className={className}>
                       <Typography variant="small" color="blue-gray" className="font-semibold">
                         {asset.category}

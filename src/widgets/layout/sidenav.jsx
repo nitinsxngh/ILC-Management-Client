@@ -24,10 +24,14 @@ export function Sidenav({ brandImg, brandName, routes }) {
         openSidenav ? "translate-x-0" : "-translate-x-80"
       } fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0 border border-blue-gray-100`}
     >
-      <div
-        className={`relative`}
-      >
+      <div className="relative">
+        {/* Brand Image */}
         <Link to="/" className="py-6 px-8 text-center">
+          <img
+            src={brandImg}
+            alt={brandName}
+            className="mx-auto h-12 w-auto mb-4" // You can adjust the height (h-12) as needed
+          />
           <Typography
             variant="h6"
             color={sidenavType === "dark" ? "white" : "blue-gray"}
@@ -96,7 +100,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
 }
 
 Sidenav.defaultProps = {
-  brandImg: "/img/logo-ct.png",
+  brandImg: "/img/ilc-logo.svg",
   brandName: "ILC Management",
 };
 

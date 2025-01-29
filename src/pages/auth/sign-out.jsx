@@ -6,6 +6,8 @@ const SignOut = () => {
   useEffect(() => {
     // Remove the adminToken to log out the user
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminEmail");
+    localStorage.removeItem("adminAccess");
   }, []);
 
   return <Navigate to="/auth/sign-in" replace />;
