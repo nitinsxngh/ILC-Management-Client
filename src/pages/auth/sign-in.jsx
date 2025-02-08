@@ -24,11 +24,12 @@ export function SignIn() {
 
     try {
       const response = await axios.post(`${API_BASE_URL}/admins/login`, { email, password });
-      const { token } = response.data;
+      const { token, role } = response.data;
 
-      // Store the token in localStorage
+      // Store the token and role in localStorage
       localStorage.setItem("adminToken", token);
       localStorage.setItem("adminEmail", email);
+      localStorage.setItem("adminRole", role);  // Store the role
 
       // Update login state and redirect
       setIsLoggedIn(true);
@@ -43,6 +44,7 @@ export function SignIn() {
   const handleSignOut = () => {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminEmail");
+    localStorage.removeItem("adminRole"); // Remove the role as well
     setIsLoggedIn(false); // Update the state
     navigate("/sign-in"); // Redirect to sign-in page
   };
