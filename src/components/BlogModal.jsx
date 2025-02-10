@@ -157,7 +157,7 @@ export default function BlogModal({ open, onClose, blog, setBlog, onSave, loadin
             maxLength={60} // Ensure the user knows the limit
           />
           <span className="text-sm text-gray-500">
-            {blog.title.length}/60 characters
+            {blog.title.length}/60 characters only
           </span>
 
           {/* Keywords Input */}
