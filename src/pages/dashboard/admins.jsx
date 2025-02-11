@@ -8,8 +8,6 @@ export function Admins() {
   const [data, setData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [modalType, setModalType] = useState("add");
-  const [adminRole, setAdminRole] = useState(localStorage.getItem("adminRole") || "viewer"); // Get role from localStorage
-
   const [admin, setAdmin] = useState({
     img: "",
     name: "",
@@ -27,7 +25,7 @@ export function Admins() {
   }, []);
 
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("adminToken");
+    const token = localStorage.getItem("adminToken"); // Assume the token is stored in localStorage
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
@@ -41,6 +39,7 @@ export function Admins() {
       console.error("Error fetching admin data:", error);
       if (error.response && error.response.status === 401) {
         alert("You are not authorized. Please log in again.");
+        // You can add a redirect to login page here if needed
       }
     }
   };
@@ -66,11 +65,13 @@ export function Admins() {
   };
 
   const handleSaveAdmin = async () => {
+    // Check if required fields are filled
     if (!admin.name || !admin.email || !admin.job[0] || !admin.job[1]) {
       alert("Please fill all required fields.");
       return;
     }
-
+  
+    // Only check password when adding a new admin
     if (modalType === "add") {
       if (!admin.password || !admin.confirmPassword) {
         alert("Password and Confirm Password are required.");
@@ -85,12 +86,13 @@ export function Admins() {
         return;
       }
     } else {
+      // Remove password fields from update request if empty
       if (!admin.password) {
         delete admin.password;
         delete admin.confirmPassword;
       }
     }
-
+  
     try {
       if (modalType === "add") {
         await axios.post(`${API_BASE_URL}/admins/register`, admin, {
@@ -108,16 +110,23 @@ export function Admins() {
       alert("There was an error saving the admin. Please try again.");
     }
   };
+  
+
+  const getRandomAvatar = () => {
+    const randomString = Math.random().toString(36).substring(7); // Generates a random string
+    return `https://robohash.org/${randomString}?size=150x150`; // RoboHash URL
+  };
 
   const handleStatusChange = async (key, e) => {
     const updatedData = [...data];
     updatedData[key].status = e;
     setData(updatedData);
 
+    // Send PUT request to update status in the backend
     try {
       await axios.put(`${API_BASE_URL}/admins/${updatedData[key].email}`, {
         ...updatedData[key],
-        status: e,
+        status: e, // Update the status
       }, {
         headers: getAuthHeaders(),
       });
@@ -131,10 +140,11 @@ export function Admins() {
     updatedData[key].access = e;
     setData(updatedData);
 
+    // Send PUT request to update access in the backend
     try {
       await axios.put(`${API_BASE_URL}/admins/${updatedData[key].email}`, {
         ...updatedData[key],
-        access: e,
+        access: e, // Update the access
       }, {
         headers: getAuthHeaders(),
       });
@@ -143,19 +153,6 @@ export function Admins() {
     }
   };
 
-  if (adminRole === "viewer" || adminRole === "editor") {
-    return (
-      <div className="mt-12 mb-8 flex flex-col items-center">
-        <Typography variant="h6" color="red">
-          Access Denied
-        </Typography>
-        <Typography className="text-gray-600">
-          You do not have permission to view this page.
-        </Typography>
-      </div>
-    );
-  }
-
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
@@ -163,17 +160,15 @@ export function Admins() {
           <Typography variant="h6" color="white">
             Admins Table
           </Typography>
-          {adminRole === "admin" && (
-            <Button color="white" size="sm" className="text-gray-700" onClick={() => handleOpenModal("add")}>
-              + Add Admin
-            </Button>
-          )}
+          <Button color="white" size="sm" className="text-gray-700" onClick={() => handleOpenModal("add")}>
+            + Add Admin
+          </Button>
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <table className="w-full min-w-[800px] table-auto">
             <thead>
               <tr>
-                {["Employee", "Function", "Status", "Access", "Created", "Actions"].map((el) => (
+                {["employee", "function", "status", "access", "created", "actions"].map((el) => (
                   <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                     <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
                       {el}
@@ -187,7 +182,7 @@ export function Admins() {
                 <tr key={adminData.email}>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
                     <div className="flex items-center gap-4">
-                      <Avatar src={adminData.img || "https://placehold.co/150"} alt={adminData.name} size="sm" variant="rounded" />
+                      <Avatar src={getRandomAvatar()} alt={adminData.name} size="sm" variant="rounded" />
                       <div>
                         <Typography variant="small" color="blue-gray" className="font-semibold">
                           {adminData.name}
@@ -207,27 +202,38 @@ export function Admins() {
                     </Typography>
                   </td>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
-                    <Select value={adminData.status} onChange={(e) => handleStatusChange(key, e)}>
+                    <Select
+                      value={adminData.status}
+                      onChange={(e) => handleStatusChange(key, e)}
+                      menuPlacement="bottom" // Ensure the dropdown opens below the select element
+                    >
                       <Option value="active">Active</Option>
                       <Option value="inactive">Inactive</Option>
                     </Select>
                   </td>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
-                    <Select value={adminData.access} onChange={(e) => handleAccessChange(key, e)}>
+                    <Select
+                      value={adminData.access}
+                      onChange={(e) => handleAccessChange(key, e)}
+                      menuPlacement="bottom" // Ensure the dropdown opens below the select element
+                    >
                       <Option value="admin">Admin</Option>
                       <Option value="editor">Editor</Option>
                       <Option value="viewer">Viewer</Option>
                     </Select>
                   </td>
                   <td className="py-3 px-5 border-b text-sm border-blue-gray-50">
-                    {new Date(adminData.createdAt).toLocaleDateString("en-US")}
+                    {new Date(adminData.createdAt).toLocaleDateString("en-US", {
+                      weekday: 'short',
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
                   </td>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
-                    {adminRole === "admin" && (
-                      <Button variant="text" color="blue" onClick={() => handleOpenModal("edit", adminData)}>
-                        Edit
-                      </Button>
-                    )}
+                    <Button variant="text" color="blue" onClick={() => handleOpenModal("edit", adminData)}>
+                      Edit
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -236,7 +242,14 @@ export function Admins() {
         </CardBody>
       </Card>
 
-      <AdminModal open={openModal} handleClose={() => setOpenModal(false)} admin={admin} setAdmin={setAdmin} handleSaveAdmin={handleSaveAdmin} modalType={modalType} />
+      <AdminModal
+        open={openModal}
+        handleClose={() => setOpenModal(false)}
+        admin={admin}
+        setAdmin={setAdmin}
+        handleSaveAdmin={handleSaveAdmin}
+        modalType={modalType}
+      />
     </div>
   );
 }
