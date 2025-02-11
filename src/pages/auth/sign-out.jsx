@@ -7,7 +7,7 @@ const SignOut = () => {
     // Remove the adminToken to log out the user
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminEmail");
-    localStorage.removeItem("adminAccess");
+    localStorage.removeItem("adminRole");
   }, []);
 
   return <Navigate to="/auth/sign-in" replace />;

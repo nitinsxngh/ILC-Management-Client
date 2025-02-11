@@ -16,29 +16,37 @@ export function SignIn() {
   // Handle SignIn
   const handleSignIn = async (e) => {
     e.preventDefault();
-
+  
     if (!email || !password) {
       setErrorMessage("Please provide email and password");
       return;
     }
-
+  
     try {
+      console.log("Sending request to:", `${API_BASE_URL}/admins/login`);
       const response = await axios.post(`${API_BASE_URL}/admins/login`, { email, password });
+  
+      console.log("Response received:", response.data);
       const { token, role } = response.data;
-
-      // Store the token and role in localStorage
+  
       localStorage.setItem("adminToken", token);
       localStorage.setItem("adminEmail", email);
-      localStorage.setItem("adminRole", role);  // Store the role
-
-      // Update login state and redirect
+      localStorage.setItem("adminRole", role);
+  
       setIsLoggedIn(true);
-      navigate("/home"); // Redirect to the dashboard
+      navigate("/home");
     } catch (error) {
-      setErrorMessage("Invalid email or password");
-      console.error("Login error:", error);
+      console.error("Login error:", error.response?.data || error.message);
+  
+      if (error.response?.status === 403) {
+        setErrorMessage("Your account is inactive. Contact support.");
+      } else {
+        setErrorMessage(error.response?.data?.message || "Invalid email or password");
+      }
     }
   };
+  
+  
 
   // Handle SignOut (if applicable)
   const handleSignOut = () => {

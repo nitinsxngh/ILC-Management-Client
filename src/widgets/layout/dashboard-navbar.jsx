@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import {
   Navbar,
   Typography,
@@ -32,6 +32,7 @@ export function DashboardNavbar() {
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
+  const navigate = useNavigate();
 
   // State to store user email
   const [userEmail, setUserEmail] = useState(null);
@@ -51,7 +52,7 @@ export function DashboardNavbar() {
     localStorage.removeItem("adminToken"); // Remove other relevant items
     setUserEmail(null); // Reset state
     // You can redirect to the login page after logout
-    window.location.href = "/auth/sign-in";
+    navigate("/auth/sign-in");
   };
 
   return (

@@ -79,8 +79,6 @@ export const routes = [
     layout: "auth",
     pages: [
       {
-        icon: <ServerStackIcon {...icon} />,
-        name: isLoggedIn ? "sign out" : "sign in", // Conditional rendering
         path: isLoggedIn ? "/sign-out" : "/sign-in", // Conditional rendering
         element: isLoggedIn ? <SignOut /> : <SignIn />, // Conditional rendering
       },

@@ -8,6 +8,8 @@ export function Admins() {
   const [data, setData] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [modalType, setModalType] = useState("add");
+  const [adminRole, setAdminRole] = useState(localStorage.getItem("adminRole") || "viewer"); // Get role from localStorage
+
   const [admin, setAdmin] = useState({
     img: "",
     name: "",
@@ -25,7 +27,7 @@ export function Admins() {
   }, []);
 
   const getAuthHeaders = () => {
-    const token = localStorage.getItem("adminToken"); // Assume the token is stored in localStorage
+    const token = localStorage.getItem("adminToken");
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
@@ -39,7 +41,6 @@ export function Admins() {
       console.error("Error fetching admin data:", error);
       if (error.response && error.response.status === 401) {
         alert("You are not authorized. Please log in again.");
-        // You can add a redirect to login page here if needed
       }
     }
   };
@@ -65,33 +66,42 @@ export function Admins() {
   };
 
   const handleSaveAdmin = async () => {
-    // Check if all required fields are filled before sending the request
-    if (!admin.name || !admin.email || !admin.password || !admin.job[0] || !admin.job[1]) {
-      alert("Please fill all fields.");
+    if (!admin.name || !admin.email || !admin.job[0] || !admin.job[1]) {
+      alert("Please fill all required fields.");
       return;
     }
 
-    // Check if password is at least 6 characters long
-    if (admin.password.length < 6) {
-      alert("Password must be at least 6 characters long.");
-      return;
+    if (modalType === "add") {
+      if (!admin.password || !admin.confirmPassword) {
+        alert("Password and Confirm Password are required.");
+        return;
+      }
+      if (admin.password.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+      if (admin.password !== admin.confirmPassword) {
+        alert("Passwords do not match.");
+        return;
+      }
+    } else {
+      if (!admin.password) {
+        delete admin.password;
+        delete admin.confirmPassword;
+      }
     }
 
     try {
-      // If adding a new admin, send a POST request
       if (modalType === "add") {
         await axios.post(`${API_BASE_URL}/admins/register`, admin, {
           headers: getAuthHeaders(),
         });
       } else {
-        // If editing an existing admin, send a PUT request
         await axios.put(`${API_BASE_URL}/admins/${admin.email}`, admin, {
           headers: getAuthHeaders(),
         });
       }
-      // Fetch updated admin data
       fetchAdmins();
-      // Close the modal
       setOpenModal(false);
     } catch (error) {
       console.error("Error saving admin:", error);
@@ -99,21 +109,15 @@ export function Admins() {
     }
   };
 
-  const getRandomAvatar = () => {
-    const randomString = Math.random().toString(36).substring(7); // Generates a random string
-    return `https://robohash.org/${randomString}?size=150x150`; // RoboHash URL
-  };
-
   const handleStatusChange = async (key, e) => {
     const updatedData = [...data];
     updatedData[key].status = e;
     setData(updatedData);
 
-    // Send PUT request to update status in the backend
     try {
       await axios.put(`${API_BASE_URL}/admins/${updatedData[key].email}`, {
         ...updatedData[key],
-        status: e, // Update the status
+        status: e,
       }, {
         headers: getAuthHeaders(),
       });
@@ -127,11 +131,10 @@ export function Admins() {
     updatedData[key].access = e;
     setData(updatedData);
 
-    // Send PUT request to update access in the backend
     try {
       await axios.put(`${API_BASE_URL}/admins/${updatedData[key].email}`, {
         ...updatedData[key],
-        access: e, // Update the access
+        access: e,
       }, {
         headers: getAuthHeaders(),
       });
@@ -140,6 +143,19 @@ export function Admins() {
     }
   };
 
+  if (adminRole === "viewer" || adminRole === "editor") {
+    return (
+      <div className="mt-12 mb-8 flex flex-col items-center">
+        <Typography variant="h6" color="red">
+          Access Denied
+        </Typography>
+        <Typography className="text-gray-600">
+          You do not have permission to view this page.
+        </Typography>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>
@@ -147,15 +163,17 @@ export function Admins() {
           <Typography variant="h6" color="white">
             Admins Table
           </Typography>
-          <Button color="white" size="sm" className="text-gray-700" onClick={() => handleOpenModal("add")}>
-            + Add Admin
-          </Button>
+          {adminRole === "admin" && (
+            <Button color="white" size="sm" className="text-gray-700" onClick={() => handleOpenModal("add")}>
+              + Add Admin
+            </Button>
+          )}
         </CardHeader>
         <CardBody className="overflow-x-scroll px-0 pt-0 pb-2">
           <table className="w-full min-w-[800px] table-auto">
             <thead>
               <tr>
-                {["employee", "function", "status", "access", "created", "actions"].map((el) => (
+                {["Employee", "Function", "Status", "Access", "Created", "Actions"].map((el) => (
                   <th key={el} className="border-b border-blue-gray-50 py-3 px-5 text-left">
                     <Typography variant="small" className="text-[11px] font-bold uppercase text-blue-gray-400">
                       {el}
@@ -169,7 +187,7 @@ export function Admins() {
                 <tr key={adminData.email}>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
                     <div className="flex items-center gap-4">
-                      <Avatar src={getRandomAvatar()} alt={adminData.name} size="sm" variant="rounded" />
+                      <Avatar src={adminData.img || "https://placehold.co/150"} alt={adminData.name} size="sm" variant="rounded" />
                       <div>
                         <Typography variant="small" color="blue-gray" className="font-semibold">
                           {adminData.name}
@@ -189,38 +207,27 @@ export function Admins() {
                     </Typography>
                   </td>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
-                    <Select
-                      value={adminData.status}
-                      onChange={(e) => handleStatusChange(key, e)}
-                      menuPlacement="bottom" // Ensure the dropdown opens below the select element
-                    >
+                    <Select value={adminData.status} onChange={(e) => handleStatusChange(key, e)}>
                       <Option value="active">Active</Option>
                       <Option value="inactive">Inactive</Option>
                     </Select>
                   </td>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
-                    <Select
-                      value={adminData.access}
-                      onChange={(e) => handleAccessChange(key, e)}
-                      menuPlacement="bottom" // Ensure the dropdown opens below the select element
-                    >
+                    <Select value={adminData.access} onChange={(e) => handleAccessChange(key, e)}>
                       <Option value="admin">Admin</Option>
                       <Option value="editor">Editor</Option>
                       <Option value="viewer">Viewer</Option>
                     </Select>
                   </td>
                   <td className="py-3 px-5 border-b text-sm border-blue-gray-50">
-                    {new Date(adminData.createdAt).toLocaleDateString("en-US", {
-                      weekday: 'short',
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
+                    {new Date(adminData.createdAt).toLocaleDateString("en-US")}
                   </td>
                   <td className="py-3 px-5 border-b border-blue-gray-50">
-                    <Button variant="text" color="blue" onClick={() => handleOpenModal("edit", adminData)}>
-                      Edit
-                    </Button>
+                    {adminRole === "admin" && (
+                      <Button variant="text" color="blue" onClick={() => handleOpenModal("edit", adminData)}>
+                        Edit
+                      </Button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -229,14 +236,7 @@ export function Admins() {
         </CardBody>
       </Card>
 
-      <AdminModal
-        open={openModal}
-        handleClose={() => setOpenModal(false)}
-        admin={admin}
-        setAdmin={setAdmin}
-        handleSaveAdmin={handleSaveAdmin}
-        modalType={modalType}
-      />
+      <AdminModal open={openModal} handleClose={() => setOpenModal(false)} admin={admin} setAdmin={setAdmin} handleSaveAdmin={handleSaveAdmin} modalType={modalType} />
     </div>
   );
 }
