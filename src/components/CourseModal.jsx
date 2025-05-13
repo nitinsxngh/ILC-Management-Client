@@ -141,7 +141,7 @@ export default function CourseModal({ open, onClose, course = {}, setCourse, onS
             onChange={handleInputChange}
           />
           <Input
-            label="Price (USD)"
+            label="Price (INR)"
             name="price"
             type="number"
             value={course.price || ""}

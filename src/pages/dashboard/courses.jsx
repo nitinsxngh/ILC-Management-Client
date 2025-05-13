@@ -166,7 +166,7 @@ export function Courses() {
                     <td className={className}><Typography variant="small">{instructor}</Typography></td>
                     <td className={className}><Typography variant="small">{duration}</Typography></td>
                     <td className={className}><Typography variant="small">{category}</Typography></td>
-                    <td className={className}><Typography variant="small">${price}</Typography></td>
+                    <td className={className}><Typography variant="small">₹{price}</Typography></td>
                     <td className={className}><Typography variant="small">{tags?.join(", ") || "N/A"}</Typography></td>
                     <td className={className}><Typography variant="small">{formattedTimestamp}</Typography></td>
                     <td className={className}>
