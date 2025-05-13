@@ -1,0 +1,16 @@
+export * from "@/pages/dashboard/home";
+export * from "@/pages/dashboard/profile";
+export * from "@/pages/dashboard/admins";
+export * from "@/pages/dashboard/users";
+export * from "@/pages/dashboard/library";
+export * from "@/pages/dashboard/blogs";
+export * from "@/pages/dashboard/courses";
+export * from "@/pages/dashboard/mentors";
+export * from "@/pages/dashboard/events";
+export * from "@/pages/dashboard/notifications";
+export * from "@/pages/dashboard/addBlogCategory";
+export * from "@/pages/dashboard/addAssetCategory";
+export * from "@/pages/dashboard/addCoursesCategory";
+export * from "@/pages/dashboard/coursesMentor";
+export * from "@/pages/dashboard/addPoster";
+export { default as CoursesMentor } from "./coursesMentor";
